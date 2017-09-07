@@ -18,13 +18,13 @@ else
 endif
 let s:slash = has('win32') ? '\' : '/'
 
-finish
-
 if exists('$TESTS_VADER_DIR')
   let vader_dir = expand($TESTS_VADER_DIR)
 else
   let vader_dir = s:dep_plugins_base . s:slash . 'vader'
 endif
+finish
+
 let &runtimepath .= ','.vader_dir
 exe 'source' join([vader_dir, 'plugin', 'vader.vim'], s:slash)
 
