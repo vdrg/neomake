@@ -23,9 +23,9 @@ if exists('$TESTS_VADER_DIR')
 else
   let vader_dir = s:dep_plugins_base . s:slash . 'vader'
 endif
-finish
 
 let &runtimepath .= ','.vader_dir
+finish
 exe 'source' join([vader_dir, 'plugin', 'vader.vim'], s:slash)
 
 let s:sourced_plugins = []
