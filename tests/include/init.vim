@@ -5,10 +5,10 @@ function! s:wait_for_jobs(filter)
   let max = 45
   while 1
     let jobs = copy(neomake#GetJobs())
-    if len(a:filter)
+    if !empty(a:filter)
       let jobs = filter(jobs, a:filter)
     endif
-    if !len(jobs)
+    if empty(jobs)
       break
     endif
     let max -= 1
@@ -42,7 +42,6 @@ command! NeomakeTestsWaitForNextMessage call s:wait_for_next_message()
 
 function! s:wait_for_message(...)
   let max = 45
-  " let n = len(g:neomake_test_messages)
   let n = g:neomake_test_messages_last_idx
   let error = 'No new message appeared after 3s.'
   while 1
@@ -208,7 +207,7 @@ function! s:AssertNeomakeMessage(msg, ...)
           \  ."expected '%s', but got nothing.", k, string(expected)))
       endfor
       let found_but_context_diff = context_diff
-      if len(context_diff)
+      if !empty(context_diff)
         if ignore_order
           continue
         endif
@@ -391,7 +390,7 @@ function! s:After()
   " Stop any (non-canceled) jobs.  Canceled jobs might take a while to call the
   " exit handler, but that is OK.
   let jobs = filter(neomake#GetJobs(), "!get(v:val, 'canceled', 0)")
-  if len(jobs)
+  if !empty(jobs)
     for job in jobs
       call neomake#CancelJob(job.id, !neomake#has_async_support())
     endfor
