@@ -826,3 +826,21 @@ Execute (neomake#utils#get_buf_line_count):
   AssertEqual neomake#utils#get_buf_line_count(bufnr), 8
   bwipe
   bwipe!
+
+Execute (neomake#utils#get_buf_line_count: unloaded buffer):
+  Save &errorformat
+  new
+  let &errorformat = '%f:%m'
+
+  laddexpr tempname().':msg'
+  let llist = getloclist(0)
+  AssertEqual llist[0].text, 'msg'
+  let unlisted_bufnr = llist[0].bufnr
+  Assert !buflisted(unlisted_bufnr)
+  AssertEqual neomake#utils#get_buf_line_count(unlisted_bufnr), 0
+  exe 'b '.unlisted_bufnr
+  AssertEqual neomake#utils#get_buf_line_count(unlisted_bufnr), 1
+
+  bp
+  bwipe
+  exe unlisted_bufnr.'bwipe'
