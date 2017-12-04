@@ -814,3 +814,15 @@ Execute (neomake#utils#DebugMessage throws with missing make_options in tests):
   AssertEqual len(g:neomake_test_errors), 1
   Assert g:neomake_test_errors[0] =~# '\v^GetMakeOptions failed: Vim\(let\):E716: Key not present in Dictionary: -42 \(in function .*\)$'
   let g:neomake_test_errors = []
+
+Execute (neomake#utils#get_buf_line_count):
+  new
+  let bufnr = bufnr('%')
+  norm! 7o
+  AssertEqual line('$'), 8
+  AssertEqual neomake#utils#get_buf_line_count(bufnr), 8
+
+  new
+  AssertEqual neomake#utils#get_buf_line_count(bufnr), 8
+  bwipe
+  bwipe!

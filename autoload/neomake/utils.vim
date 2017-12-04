@@ -702,3 +702,16 @@ function! neomake#utils#get_project_root(bufnr) abort
     endfor
     return ''
 endfunction
+
+if exists('*nvim_buf_line_count')
+function! neomake#utils#get_buf_line_count(bufnr) abort
+    return nvim_buf_line_count(a:bufnr)
+endfunction
+else
+function! neomake#utils#get_buf_line_count(bufnr) abort
+    if a:bufnr == bufnr('%')
+        return line('$')
+    endif
+    return len(getbufline(a:bufnr, 1, '$'))
+endfunction
+endif
