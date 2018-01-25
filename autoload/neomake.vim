@@ -1377,7 +1377,6 @@ function! s:AddExprCallback(jobinfo, prev_list) abort
     endif
 
     if !empty(changed_entries) || !empty(removed_entries)
-        let list = file_mode ? getloclist(0) : getqflist()
         if !empty(changed_entries)
             for k in keys(changed_entries)
                 let list[k] = changed_entries[k]
@@ -1392,6 +1391,18 @@ function! s:AddExprCallback(jobinfo, prev_list) abort
             call setloclist(0, list, 'r')
         else
             call setqflist(list, 'r')
+        endif
+
+        " Assert: the list is what we expect (without fetching it anew).
+        " 953938ca indicates that for changed/removed entries it needs to be
+        " refetched, but there is no failing test.
+        " Only does this for when 'valid' gets not changed when setting the
+        " list (patch-8.0.8580).
+        if s:is_testing && has('patch-8.0.0580')
+            let filter_keys = ['maker_name', 'length']
+            let comp_list = map(deepcopy(list), "filter(v:val, 'index(filter_keys, v:key) == -1')")
+            let new_list = file_mode ? getloclist(0) : getqflist()
+            call vader#assert#equal(comp_list, new_list)
         endif
     endif
 
