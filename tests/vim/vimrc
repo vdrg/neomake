@@ -10,6 +10,8 @@ let g:neomake_test_messages = []
 " Shorter timeouts during tests.
 let g:neomake_action_queue_timeouts = {1: 10, 2: 20, 3: 30}
 
+let s:slash = has('win32') ? '\' : '/'
+
 if exists('$NEOMAKE_TESTS_DEP_PLUGINS_DIR')
   let s:dep_plugins_base = $NEOMAKE_TESTS_DEP_PLUGINS_DIR
 else
@@ -17,7 +19,6 @@ else
         \ [expand('<sfile>:p:h'), '..', '..', 'build', 'vim', 'plugins'],
         \ s:slash)
 endif
-let s:slash = has('win32') ? '\' : '/'
 
 if exists('$TESTS_VADER_DIR')
   let vader_dir = expand($TESTS_VADER_DIR)
