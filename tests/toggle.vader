@@ -71,6 +71,13 @@ Execute (Toggle commands):
     AssertEqual b:neomake, {}
     AssertEqual neomake#config#get_with_source('disabled'), [1, 'global']
 
+    echom '== Disabling again =='
+    NeomakeDisable
+    AssertEqual g:neomake.disabled, 1
+    AssertEqual t:neomake, {}
+    AssertEqual b:neomake, {}
+    AssertEqual neomake#config#get_with_source('disabled'), [1, 'global']
+
     NeomakeToggle
     Assert !has_key(g:neomake, 'disabled')
     AssertEqual t:neomake, {}
@@ -92,6 +99,19 @@ Execute (Toggle commands):
         \ 'Neomake is disabled (global).',
         \ 'Neomake is enabled (global).',
         \ 'Neomake is disabled (global).',
+        \ '== Disabling again ==',
+        \ 'Neomake is enabled.']
+    else
+      AssertEqual NeomakeTestsGetVimMessages(), [
+        \ 'Neomake is disabled (global).',
+        \ 'Neomake is disabled (tab).',
+        \ 'Neomake is disabled (buffer).',
+        \ 'Neomake is disabled (buffer).',
+        \ 'Neomake is disabled (tab).',
+        \ 'Neomake is disabled (tab).',
+        \ 'Neomake is disabled (global).',
+        \ 'Neomake is disabled (global).',
+        \ '== Disabling again ==',
         \ 'Neomake is enabled.']
     endif
   endfor
