@@ -2,22 +2,32 @@ Include: include/setup.vader
 
 Execute (Setup):
   function! NeomakeTestsAssertAutomakeAutocommands(events) abort
-    let expected = ['neomake_automake  BufWipeout:     *         call s:neomake_automake_clean(expand(''<abuf>''))']
+    let expected = []
     for e in a:events
       call add(expected, 'neomake_automake  '.e.':     *         call s:neomake_automake('''.e.''', expand(''<abuf>''))')
     endfor
 
-    redir => redir_output
-    silent au neomake_automake
-    redir END
-    let output = split(redir_output, "\n")[1:-1]
-    let sort_output = []
-    for i in range(1, len(output), 2)
-      let sort_output += [output[i-1].': '.output[i]]
-    endfor
+    if exists('#neomake_automake')
+      redir => redir_output
+      silent au neomake_automake
+      redir END
+      let output = split(redir_output, "\n")[1:-1]
+      let sort_output = []
+      for i in range(1, len(output), 2)
+        let sort_output += [output[i-1].': '.output[i]]
+      endfor
+    else
+      let sort_output = []
+    endif
     AssertEqual join(sort(expected), "\n"), join(sort(sort_output), "\n")
   endfunction
   call add(g:neomake_test_funcs_before, 'NeomakeTestsAssertAutomakeAutocommands')
+
+Execute (augroup neomake_automake does not exist by default):
+  Save g:neomake
+  Assert !exists('#neomake_automake')
+  call neomake#configure#automake()
+  Assert !exists('#neomake_automake')
 
 Execute (short setup: 'n'):
   Save g:neomake
@@ -338,7 +348,7 @@ Execute (neomake#configure#automake_for_buffer does not set up autocommands for 
   call neomake#configure#automake_for_buffer('n', 10)
   AssertNeomakeMessage 'automake: configured buffer for ft= (no enabled makers).'
   AssertNeomakeMessage 'automake: registered events: .', 3
-  call NeomakeTestsAssertAutomakeAutocommands([])
+  Assert !exists('#neomake_automake')
   bwipe
 
 Execute (neomake#configure#automake_for_buffer sets up autocommands with makers):

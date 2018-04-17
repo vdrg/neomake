@@ -563,13 +563,17 @@ function! neomake#configure#automake(...) abort
 
     augroup neomake_automake
         au!
-        autocmd BufWipeout * call s:neomake_automake_clean(expand('<abuf>'))
         for event in s:registered_events
             exe 'autocmd '.event." * call s:neomake_automake('".event."', expand('<abuf>'))"
         endfor
     augroup END
-    augroup neomake_automake_update
-        au!
-        autocmd FileType * call s:maybe_reconfigure_buffer(expand('<abuf>'))
-    augroup END
+    if empty(s:registered_events)
+        augroup! neomake_automake
+    endif
 endfunction
+
+augroup neomake_automake_base
+    au!
+    autocmd BufWipeout * call s:neomake_automake_clean(expand('<abuf>'))
+    autocmd FileType * call s:maybe_reconfigure_buffer(expand('<abuf>'))
+augroup END
