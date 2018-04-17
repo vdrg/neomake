@@ -45,21 +45,27 @@ function! s:handle_disabled_status(scope, disabled, verbose) abort
             call s:setup_autocmds()
         endif
     elseif a:scope is# t:
+        let tab = tabpagenr()
+        let buffers = neomake#compat#uniq(sort(tabpagebuflist()))
         if a:disabled
-            call neomake#log#debug(printf('Disabled for tab %d.', tabpagenr()))
-            for b in neomake#compat#uniq(sort(tabpagebuflist()))
-                call neomake#configure#reset_automake_for_buffer(b)
+            call neomake#log#debug(printf('Disabled for tab %d.', tab))
+            for b in buffers
+                call neomake#configure#disable_automake_for_buffer(b)
             endfor
         else
-            call neomake#log#debug(printf('Enabled for tab %d.', tabpagenr()))
+            call neomake#log#debug(printf('Enabled for tab %d.', tab))
+            for b in buffers
+                call neomake#configure#enable_automake_for_buffer(b)
+            endfor
         endif
     elseif a:scope is# b:
         let bufnr = bufnr('%')
         if a:disabled
             call neomake#log#debug(printf('Disabled for buffer %d.', bufnr))
-            call neomake#configure#reset_automake_for_buffer(bufnr)
+            call neomake#configure#disable_automake_for_buffer(bufnr)
         else
             call neomake#log#debug(printf('Enabled for buffer %d.', bufnr))
+            call neomake#configure#enable_automake_for_buffer(bufnr)
         endif
     endif
     call neomake#statusline#clear_cache()

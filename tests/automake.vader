@@ -891,14 +891,24 @@ Execute (NeomakeDisableBuffer stops timer and keeps custom config):
     set filetype=neomake_tests
     let b:neomake_enabled_makers = [g:true_maker]
     call neomake#configure#automake_for_buffer({'TextChanged': {'delay': 10}})
+    AssertNeomakeMessage 'automake: registered events: TextChanged.', 3
+
     doautocmd TextChanged
     AssertNeomakeMessage '\vautomake: started timer \(10ms\): (\d+)'
     let timer = g:neomake_test_matchlist[1]
     NeomakeDisableBuffer
     AssertNeomakeMessage 'automake: stopped timer for buffer: '.timer.'.', 3, {'bufnr': bufnr('%')}
 
+    " Unregisters event.
+    AssertNeomakeMessage 'automake: registered events: .', 3
+
     " Re-enabling it kept config.
     NeomakeToggleBuffer
+    let bufnr = bufnr('%')
+    AssertNeomakeMessage 'Enabled for buffer '.bufnr.'.', 3, {}
+    AssertNeomakeMessage 'automake: Re-enabled buffer 39.', 3, {'bufnr': bufnr}
+    AssertNeomakeMessage "Using setting automake.events={'TextChanged': {'delay': 10}} from 'buffer'."
+    AssertNeomakeMessage 'automake: registered events: TextChanged.'
     doautocmd TextChanged
     AssertNeomakeMessage '\vautomake: started timer \(10ms\): (\d+)'
     bwipe
