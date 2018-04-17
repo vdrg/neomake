@@ -753,7 +753,9 @@ Execute (Toggling disables automaking):
   set filetype=neomake_tests
   let b:neomake_enabled_makers = [g:true_maker]
   NeomakeToggleBuffer
-  AssertNeomakeMessage "Using setting disabled=1 from 'buffer'.", 3, log_context
+  AssertNeomakeMessage 'disabled for buffer '.bufnr.'.', 3, {}
+  AssertNeomakeMessage 'automake: disabling buffer '.bufnr.'.', 3, log_context
+  AssertNeomakeMessage 'automake: registered events: .', 3, log_context
   call neomake#configure#automake({'InsertLeave': {'delay': 0}})
   AssertNeomakeMessage 'automake: registered events: InsertLeave.', 3, log_context
   doautocmd InsertLeave
@@ -915,7 +917,7 @@ Execute (NeomakeDisableBuffer stops timer and keeps custom config):
     " Re-enabling it kept config.
     NeomakeToggleBuffer
     let bufnr = bufnr('%')
-    AssertNeomakeMessage printf('Enabled for buffer %d.', bufnr), 3, {}
+    AssertNeomakeMessage printf('enabled for buffer %d.', bufnr), 3, {}
     AssertNeomakeMessage printf('automake: Re-enabled buffer %d.', bufnr), 3, {'bufnr': bufnr}
     AssertNeomakeMessage "Using setting automake.events={'TextChanged': {'delay': 10}} from 'buffer'."
     AssertNeomakeMessage 'automake: registered events: TextChanged.'

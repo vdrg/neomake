@@ -21,46 +21,48 @@ command! -bang NeomakeCancelJobs call neomake#CancelJobs(<bang>0)
 
 command! -bang -bar NeomakeInfo call neomake#debug#display_info(<bang>0)
 
+function! s:status_feedback(disabled, where, verbose) abort
+    let msg = (a:disabled ? 'disabled' : 'enabled').' '.a:where.'.'
+    if a:verbose
+        echom 'Neomake: '.msg
+    endif
+    call neomake#log#debug(msg)
+endfunction
+
 " Enable/disable/toggle commands.  {{{
 function! s:handle_disabled_status(scope, disabled, verbose) abort
     if a:scope is# g:
+        call s:status_feedback(a:disabled, 'globally', a:verbose)
         if a:disabled
-            call neomake#log#debug('Disabled globally.')
             autocmd! neomake
             augroup! neomake
-            call neomake#configure#reset_automake()
         else
-            call neomake#log#debug('Enabled globally.')
             call s:setup_autocmds()
         endif
     elseif a:scope is# t:
         let tab = tabpagenr()
+        call s:status_feedback(a:disabled, 'for tab '.tab, a:verbose)
         let buffers = neomake#compat#uniq(sort(tabpagebuflist()))
         if a:disabled
-            call neomake#log#debug(printf('Disabled for tab %d.', tab))
             for b in buffers
                 call neomake#configure#disable_automake_for_buffer(b)
             endfor
         else
-            call neomake#log#debug(printf('Enabled for tab %d.', tab))
             for b in buffers
                 call neomake#configure#enable_automake_for_buffer(b)
             endfor
         endif
     elseif a:scope is# b:
         let bufnr = bufnr('%')
+        call s:status_feedback(a:disabled, 'for buffer '.bufnr, a:verbose)
         if a:disabled
-            call neomake#log#debug(printf('Disabled for buffer %d.', bufnr))
             call neomake#configure#disable_automake_for_buffer(bufnr)
         else
-            call neomake#log#debug(printf('Enabled for buffer %d.', bufnr))
             call neomake#configure#enable_automake_for_buffer(bufnr)
         endif
     endif
+    call neomake#configure#automake()
     call neomake#statusline#clear_cache()
-    if a:verbose
-        call s:display_status()
-    endif
 endfunction
 
 function! s:disable(scope) abort

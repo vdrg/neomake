@@ -512,8 +512,13 @@ function! s:neomake_automake_clean(bufnr) abort
     endif
 endfunction
 
+function! neomake#configure#disable_automake() abort
+    call s:debug_log('disabling automake %d')
+    call s:stop_timers()
+endfunction
+
 function! neomake#configure#disable_automake_for_buffer(bufnr) abort
-    call s:debug_log(printf('Disabling buffer %d', a:bufnr))
+    call s:debug_log(printf('disabling buffer %d', a:bufnr))
     if has_key(s:timer_by_bufnr, a:bufnr)
         let timer = s:timer_by_bufnr[a:bufnr]
         call s:stop_timer(timer)
@@ -522,14 +527,12 @@ function! neomake#configure#disable_automake_for_buffer(bufnr) abort
     if has_key(s:configured_buffers, a:bufnr)
         let s:configured_buffers[a:bufnr].disabled = 1
     endif
-    call neomake#configure#automake()
 endfunction
 
 function! neomake#configure#enable_automake_for_buffer(bufnr) abort
     if exists('s:configured_buffers[a:bufnr].disabled')
         call s:debug_log(printf('Re-enabled buffer %d', a:bufnr))
         unlet s:configured_buffers[a:bufnr].disabled
-        call neomake#configure#automake()
     endif
 endfunction
 
@@ -541,9 +544,14 @@ function! neomake#configure#automake(...) abort
         call call('s:parse_events_from_args', [g:neomake] + a:000)
     endif
 
+    let disabled_globally = get(get(g:, 'neomake', {}), 'disabled', 0)
+    if disabled_globally
+        let s:registered_events = []
+    else
+        let s:registered_events = keys(get(get(g:neomake, 'automake', {}), 'events', {}))
+    endif
     " Keep custom configured buffers.
     call filter(s:configured_buffers, 'v:val.custom')
-    let s:registered_events = keys(get(get(g:neomake, 'automake', {}), 'events', {}))
     for b in keys(s:configured_buffers)
         if empty(s:configured_buffers[b].maker_jobs)
             continue
