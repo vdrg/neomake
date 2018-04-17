@@ -498,6 +498,7 @@ function! neomake#configure#reset_automake() abort
     let s:configured_buffers = {}
     let s:registered_events = []
     call s:stop_timers()
+    call neomake#configure#automake()
 endfunction
 
 function! s:neomake_automake_clean(bufnr) abort
@@ -509,6 +510,15 @@ function! s:neomake_automake_clean(bufnr) abort
     if has_key(s:configured_buffers, a:bufnr)
         unlet s:configured_buffers[a:bufnr]
     endif
+endfunction
+
+function! neomake#configure#reset_automake_for_buffer(bufnr) abort
+    if has_key(s:timer_by_bufnr, a:bufnr)
+        let timer = s:timer_by_bufnr[a:bufnr]
+        call s:stop_timer(timer)
+        call s:debug_log('stopped timer for buffer: '.timer)
+    endif
+    call neomake#configure#automake()
 endfunction
 
 function! neomake#configure#automake(...) abort

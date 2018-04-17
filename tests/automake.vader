@@ -857,3 +857,84 @@ Execute (neomake#configure#reset_automake stops timers):
     AssertNeomakeMessage 'automake: stopping timers: '.timer.'.'
     bwipe
   endif
+
+Execute (NeomakeDisableBuffer stops timers):
+  if !has('timers')
+    NeomakeTestsSkip 'Only with timers feature'
+  else
+    Save g:neomake
+
+    new
+    set filetype=neomake_tests
+    let b:neomake_enabled_makers = [g:true_maker]
+    call neomake#configure#automake({'TextChanged': {'delay': 10}})
+    doautocmd TextChanged
+    AssertNeomakeMessage '\vautomake: started timer \(10ms\): (\d+)'
+    let timer = g:neomake_test_matchlist[1]
+    NeomakeDisableBuffer
+    AssertNeomakeMessage 'automake: stopped timer for buffer: '.timer.'.', 3, {'bufnr': bufnr('%')}
+
+    " Re-enabling it kept config.
+    NeomakeToggleBuffer
+    doautocmd TextChanged
+    AssertNeomakeMessage '\vautomake: started timer \(10ms\): (\d+)'
+    bwipe
+  endif
+
+Execute (NeomakeDisableBuffer stops timer and keeps custom config):
+  if !has('timers')
+    NeomakeTestsSkip 'Only with timers feature'
+  else
+    Save g:neomake
+
+    new
+    set filetype=neomake_tests
+    let b:neomake_enabled_makers = [g:true_maker]
+    call neomake#configure#automake_for_buffer({'TextChanged': {'delay': 10}})
+    doautocmd TextChanged
+    AssertNeomakeMessage '\vautomake: started timer \(10ms\): (\d+)'
+    let timer = g:neomake_test_matchlist[1]
+    NeomakeDisableBuffer
+    AssertNeomakeMessage 'automake: stopped timer for buffer: '.timer.'.', 3, {'bufnr': bufnr('%')}
+
+    " Re-enabling it kept config.
+    NeomakeToggleBuffer
+    doautocmd TextChanged
+    AssertNeomakeMessage '\vautomake: started timer \(10ms\): (\d+)'
+    bwipe
+  endif
+
+Execute (NeomakeDisableTab stops timers):
+  if !has('timers')
+    NeomakeTestsSkip 'Only with timers feature'
+  else
+    Save g:neomake
+
+    new
+    set filetype=neomake_tests
+    let b:neomake_enabled_makers = [g:true_maker]
+    call neomake#configure#automake({'TextChanged': {'delay': 10}})
+    doautocmd TextChanged
+    AssertNeomakeMessage '\vautomake: started timer \(10ms\): (\d+)'
+    let timer_buffer = g:neomake_test_matchlist[1]
+
+    tabnew
+    set filetype=neomake_tests
+    let b:neomake_enabled_makers = [g:true_maker]
+    call neomake#configure#automake({'TextChanged': {'delay': 10}})
+    doautocmd TextChanged
+    AssertNeomakeMessage '\vautomake: started timer \(10ms\): (\d+)'
+    let timer = g:neomake_test_matchlist[1]
+    NeomakeDisableTab
+    AssertNeomakeMessage 'automake: stopped timer for buffer: '.timer.'.', 3, {'bufnr': bufnr('%')}
+    bwipe
+
+    NeomakeDisableBuffer
+    AssertNeomakeMessage 'automake: stopped timer for buffer: '.timer_buffer.'.', 3, {'bufnr': bufnr('%')}
+
+    " Re-enabling it kept config.
+    NeomakeToggleBuffer
+    doautocmd TextChanged
+    AssertNeomakeMessage '\vautomake: started timer \(10ms\): (\d+)'
+    bwipe
+  endif
