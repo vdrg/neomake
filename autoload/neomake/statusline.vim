@@ -212,13 +212,14 @@ function! neomake#statusline#get_status(bufnr, options) abort
         endif
     endif
 
+    let use_highlights_with_defaults = get(a:options, 'use_highlights_with_defaults', 1)
     let [loclist_counts, qflist_counts] = neomake#statusline#get_counts(a:bufnr)
     if empty(loclist_counts)
         if loclist_counts is s:no_loclist_counts
             let format_unknown = get(a:options, 'format_loclist_unknown', '?')
             let r .= s:formatter.format(format_unknown, {'bufnr': a:bufnr})
         else
-            let format_ok = get(a:options, 'format_loclist_ok', '%#NeomakeStatusGood#✓')
+            let format_ok = get(a:options, 'format_loclist_ok', use_highlights_with_defaults ? '%#NeomakeStatusGood#✓' : '✓')
             let r .= s:formatter.format(format_ok, {'bufnr': a:bufnr})
         endif
     else
@@ -228,12 +229,11 @@ function! neomake#statusline#get_status(bufnr, options) abort
             for [type, c] in items(loclist_counts)
                 if has_key(a:options, 'format_loclist_type_'.type)
                     let format = a:options['format_loclist_type_'.type]
-                elseif hlexists('NeomakeStatColorType'.type)
+                elseif use_highlights_with_defaults && hlexists('NeomakeStatColorType'.type)
                     let format = '%#NeomakeStatColorType{{type}}# {{type}}:{{count}} '
                 else
                     let format = ' {{type}}:{{count}} '
                 endif
-                " let format = get(a:options, 'format_type_'.type, '%#NeomakeStatColorType{{type}}# {{type}}:{{count}} ')
                 let loclist .= s:formatter.format(format, {
                             \ 'bufnr': a:bufnr,
                             \ 'count': c,
@@ -256,7 +256,7 @@ function! neomake#statusline#get_status(bufnr, options) abort
             for [type, c] in items(qflist_counts)
                 if has_key(a:options, 'format_quickfix_type_'.type)
                     let format = a:options['format_quickfix_type_'.type]
-                elseif hlexists('NeomakeStatColorQuickfixType'.type)
+                elseif use_highlights_with_defaults && hlexists('NeomakeStatColorQuickfixType'.type)
                     let format = '%#NeomakeStatColorQuickfixType{{type}}# Q{{type}}:{{count}} '
                 else
                     let format = ' Q{{type}}:{{count}} '

@@ -720,8 +720,8 @@ A simpler example: >
           \ 'format_quickfix_issues': '%s',
           \ })
 <
-
 You can use the following options:
+
   - format_running: used in case there are jobs running.  Use 0 (as a number)
     to disable this, but fall through to the last known status.
     Default: `… ({{running_job_names}})`
@@ -769,6 +769,12 @@ You can use the following options:
     Default: `'%s!'`.
   - running_jobs_separator: Separator for formatted running job names.
     Default: `', '`.
+
+Advanced/experimental options:
+
+  - use_highlights_with_defaults: include highlight attributes with default
+    options (e.g. "%#NeomakeStatusGood#" with "format_loclist_ok").
+    Default: 1
 
 You can use the following format placeholders:
   - `{{running_job_names}}}`: comma-separated list of running jobs (typically
