@@ -211,4 +211,3 @@ Execute (NeomakeInfo with maker name):
   \ "   - maker's exe (makeprg) is not executable.",
   \ ]
   bwipe
-  Assert 0
