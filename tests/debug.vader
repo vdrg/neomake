@@ -24,3 +24,9 @@ Execute (neomake#debug#validate_maker):
   \   'maker has postprocess, but only process_json will be used.',
   \   'maker has errorformat, but only process_json will be used.',
   \ ]}
+
+Execute (neomake#debug#validate_maker with exe as function):
+  let maker = neomake#GetMaker('maker_with_nonstring_exe', 'neomake_tests')
+  AssertEqual neomake#debug#validate_maker(maker), {
+  \ 'errors': ['Non-string given for executable of maker maker_with_nonstring_exe: type 2.'],
+  \ 'warnings': []}
