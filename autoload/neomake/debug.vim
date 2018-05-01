@@ -111,7 +111,10 @@ function! neomake#debug#get_maker_info(maker_name) abort
         try
             let maker = neomake#GetMaker(a:maker_name)
         catch
-            call neomake#log#error(v:exception . '.')
+            let error = printf(
+                  \ 'Could not get info for maker %s: %s, %s.',
+                  \ a:maker_name, error, v:exception)
+            call neomake#log#error(error)
             return []
         endtry
     endtry
