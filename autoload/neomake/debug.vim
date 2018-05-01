@@ -32,9 +32,9 @@ function! neomake#debug#validate_maker(maker) abort
 
     try
         let maker = neomake#core#instantiate_maker(a:maker, {})
-        if !executable(a:maker.exe)
-            let t = get(a:maker, 'auto_enabled', 0) ? 'warnings' : 'errors'
-            let issues[t] += [printf("maker's exe (%s) is not executable.", a:maker.exe)]
+        if !executable(maker.exe)
+            let t = get(maker, 'auto_enabled', 0) ? 'warnings' : 'errors'
+            let issues[t] += [printf("maker's exe (%s) is not executable.", maker.exe)]
         endif
     catch /^Neomake: /
         let issues.errors += [substitute(v:exception, '^Neomake: ', '', '').'.']
